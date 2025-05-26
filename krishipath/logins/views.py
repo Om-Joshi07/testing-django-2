@@ -25,7 +25,7 @@ def user_login(request):
             login(request, user)
             return redirect('home')     # Works only for existing users; doesn't work for new users
         else:
-            return HttpResponse("Invalid Credentials")
+            return render(request, 'logins/login.html', {'error': 'Invalid credentials. Please try again.'})
         
     return render(request, 'logins/login.html')
 
