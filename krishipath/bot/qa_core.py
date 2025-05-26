@@ -12,7 +12,7 @@ from langchain_community.vectorstores import FAISS
 load_dotenv()
 
 # HF_TOKEN = os.getenv("HF_TOKEN")
-HF_TOKEN = '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'
+HF_TOKEN = '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'
 
 DB_FAISS_PATH = "vectorstore/db_faiss"
 
