@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/chatbot.css' %}" />
+
+<div class="chat-container">
+    <!-- Chat Header -->
+    <div class="chat-header">
+        <div class="chat-header-info">
+            <div class="bot-avatar">
+                <img src="{% static 'img/small_logo.png' %}" alt="AI Assistant" />
+                <span class="status-dot"></span>
+            </div>
+            <div class="bot-info">
+                <h2>KrishiPath</h2>
+                <p>AI Agricultural Assistant</p>
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- Chat Messages Area -->
+    <div class="chat-messages" id="chat-messages">
+        <!-- Welcome Message -->
+        <div class="message bot-message">
+            <div class="message-content">
+                <p>👋 Hello! I'm KrishiBot, your agricultural assistant. How can I help you today?</p>
+            </div>
+        </div>
+
+        <!-- Suggested Questions -->
+        <div class="suggested-questions">
+            <button class="suggestion-btn" onclick="askQuestion('What crops are suitable for my soil?')">
+                What crops are suitable for my soil?
+            </button>
+            <button class="suggestion-btn" onclick="askQuestion('How to prevent common plant diseases?')">
+                How to prevent common plant diseases?
+            </button>
+            <button class="suggestion-btn" onclick="askQuestion('Best fertilizers for organic farming?')">
+                Best fertilizers for organic farming?
+            </button>
+        </div>
+    </div>
+
+    <!-- Chat Input Area -->
+    <div class="chat-input-area">
+        <div class="input-wrapper">
+            <input 
+                type="text" 
+                id="user-input" 
+                placeholder="Type your message here..."
+                autocomplete="off"
+            />
+            <div class="input-actions">
+                <button class="send-btn" id="send-btn" title="Send message">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<!-- Chat Integration Script -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-btn');
+
+        // Helper to get CSRF token cookie for Django
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Function to add a new message to the chat
+        function addMessage(message, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = isUser ? 'message user-message' : 'message bot-message';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            
+            const messageText = document.createElement('p');
+            messageText.textContent = message;
+            
+            const messageTime = document.createElement('span');
+            messageTime.className = 'message-time';
+            messageTime.textContent = 'Just now';
+            
+            messageContent.appendChild(messageText);
+            messageContent.appendChild(messageTime);
+            messageDiv.appendChild(messageContent);
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Function to handle sending messages
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (message) {
+                addMessage(message, true);
+                userInput.value = '';
+
+                try {
+                    const response = await fetch("", {
+                        method: "POST",
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken')
+                        },
+                        body: JSON.stringify({ question: message })
+                    });
+
+                    const data = await response.json();
+                    if (data.answer) {
+                        addMessage(data.answer, false);
+                    } else {
+                        addMessage("Sorry, I couldn't find an answer.", false);
+                    }
+                } catch (error) {
+                    addMessage("Error connecting to server.", false);
+                }
+            }
+        }
+
+        sendButton.addEventListener('click', sendMessage);
+        
+        userInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        window.askQuestion = function(question) {
+            userInput.value = question;
+            sendMessage();
+        };
+    });
+</script>
+{% endblock %}

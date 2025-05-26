@@ -1,0 +1,19 @@
+
+
+.weather-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 1em 0;
+}
+
+.weather-list li {
+    margin: 0.4em 0;
+    font-size: 1.1em;
+}
+
+.weather-data, .weather-error, .weather-prompt {
+    padding: 1em;
+    border-radius: 8px;
+    background-color: #f0f4f8;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}

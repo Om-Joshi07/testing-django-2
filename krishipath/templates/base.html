@@ -1,0 +1,137 @@
+
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}KrishiPath{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
+    <link rel="stylesheet" href="{% static 'css/footer.css' %}">
+    <style>
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            font-family: 'Poppins', sans-serif;
+        }
+        main {
+            flex: 1 0 auto;
+            {% comment %} padding-top: 80px; /* Navbar height offset */ {% endcomment %}
+            padding-bottom: 40px;
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <main class="main-content">
+        {% block content %}
+        <!-- Content goes here -->
+        {% endblock %}
+    </main>
+
+    {% include 'footer.html' %}
+
+
+    {% block extra_js %}
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        function initGeoLocation({
+            enableMap = false,
+            fetchUrls = [],
+            csrfToken = '',
+            onComplete = null
+        }) {
+            function postLocationData(lat, lon) {
+                const headers = {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": csrfToken
+                };
+                const body = `latitude=${lat}&longitude=${lon}`;
+
+                fetchUrls.forEach(url => {
+                    fetch(url, { method: "POST", headers, body })
+                        .then(res => {
+                            if (!res.ok) console.error("Fetch failed for", url);
+                            else if (onComplete) onComplete(url);
+                        })
+                        .catch(err => console.error(`Error with ${url}`, err));
+                });
+            }
+
+            function renderMap(lat, lon, acc, label) {
+                const mapContainer = document.getElementById("map");
+                if (!mapContainer) return;
+
+                const map = L.map(mapContainer).setView([lat, lon], acc ? 15 : 10);
+                L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap contributors'
+                }).addTo(map);
+                L.marker([lat, lon]).addTo(map).bindPopup(label).openPopup();
+
+                if (acc) {
+                    L.circle([lat, lon], {
+                        radius: acc,
+                        color: 'red',
+                        fillColor: '#f03',
+                        fillOpacity: 0.5
+                    }).addTo(map);
+                }
+            }
+
+            function fallbackToIP() {
+                fetch('https://ipapi.co/json/')
+                    .then(res => res.json())
+                    .then(data => {
+                        if (enableMap) renderMap(data.latitude, data.longitude, null, "Approximate location");
+                        if (!sessionStorage.getItem("formSubmitted")) {
+                            sessionStorage.setItem("formSubmitted", "true");
+                            postLocationData(data.latitude, data.longitude);
+                        }
+                    })
+                    .catch(err => {
+                        console.error("Location failed completely", err);
+                        alert("Could not determine your location.");
+                    });
+            }
+
+            function success(position) {
+                const { latitude, longitude, accuracy } = position.coords;
+
+                if (enableMap) renderMap(latitude, longitude, accuracy, "You are here");
+
+                if (!sessionStorage.getItem("formSubmitted")) {
+                    sessionStorage.setItem("formSubmitted", "true");
+                    postLocationData(latitude, longitude);
+                }
+            }
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(success, fallbackToIP, {
+                    enableHighAccuracy: true, timeout: 5000, maximumAge: 0
+                });
+            } else {
+                fallbackToIP();
+            }
+        }
+    </script>
+
+    {% endblock %}
+
+    
+
+
+</body>
+</html>
+

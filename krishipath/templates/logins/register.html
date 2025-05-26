@@ -1,0 +1,471 @@
+
+
+{% extends "base.html" %}
+
+{% load socialaccount %}
+{% load static %}
+
+{% block title %} Register Page {% endblock %}
+
+{% block content %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+  body {
+    background-color: #f8f9fa;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  .main-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 1rem;
+  }
+
+  .content-wrapper {
+    display: flex;
+    background-color: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    max-width: 1000px;
+    width: 100%;
+  }
+
+  .image-section {
+    flex: 1;
+    background: url('https://source.unsplash.com/random/800x1000/?technology,abstract') center/cover no-repeat;
+    display: none; /* Hidden on mobile */
+  }
+
+  .form-section {
+    flex: 1;
+    padding: 40px 50px;
+  }
+
+  .auth-card {
+    width: 100%;
+  }
+
+  .divider {
+    text-align: center;
+    margin: 1.5rem 0;
+    font-size: 1.2rem;
+    color: #666;
+  }
+
+  .auth-title {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    color: #333;
+    font-weight: 600;
+  }
+
+  .form-group {
+    margin-bottom: 1.8rem;
+    position: relative;
+  }
+
+  .form-label {
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    display: block;
+  }
+
+  .form-input {
+    border-radius: 10px;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    width: 100%;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+
+  .form-input:focus {
+    border-color: #5b9bd5;
+    box-shadow: 0 0 8px rgba(91, 155, 213, 0.3);
+  }
+
+  .password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 38px;
+    cursor: pointer;
+    color: #666;
+  }
+
+  .btn-submit {
+    background-color: #5b9bd5;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 0.75rem 2rem;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+    display: block;
+    margin: 2rem auto 1.5rem;
+    width: 100%;
+  }
+
+  .btn-submit:hover {
+    background-color: #498ac3;
+  }
+
+  .btn-auth-google {
+    background-color: #fff;
+    color: #444;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 0.65rem;
+    font-weight: 500;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: box-shadow 0.3s ease;
+    width: 100%;
+    margin-bottom: 1.5rem;
+    text-decoration: none;
+  }
+
+  .btn-auth-google:hover {
+    box-shadow: 0 0 10px rgba(66, 133, 244, 0.2);
+  }
+
+  .btn-auth-google img {
+    height: 20px;
+    margin-right: 10px;
+  }
+
+  .auth-footer {
+    text-align: center;
+    margin-top: 1.2rem;
+  }
+
+  .auth-footer a {
+    color: #007bff;
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  .auth-footer a:hover {
+    text-decoration: underline;
+  }
+
+  .auth-error {
+    color: #d32f2f;
+    background-color: rgba(255, 235, 238, 0.9);
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-weight: 500;
+  }
+
+  .password-strength {
+    font-size: 0.8rem;
+    margin-top: 0.3rem;
+    color: #666;
+  }
+
+  /* Show image on larger screens */
+  @media (min-width: 992px) {
+    .image-section {
+      display: block;
+    }
+  }
+</style>
+
+<div class="main-container">
+  <div class="content-wrapper">
+    <div class="image-section">
+      <img src="{% static 'img/register_logo.png' %}" alt="">
+    </div>
+    
+    <div class="form-section">
+      <div class="auth-card">
+        <h2 class="auth-title">Create an Account</h2>
+
+        {% if error %}
+        <div class="auth-error">
+          {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST">
+          {% csrf_token %}
+
+          <div class="form-group">
+            <label for="fullNameInput" class="form-label">Full Name</label>
+            <input type="text" class="form-input" id="fullNameInput"
+                   name="full_name" required
+                   value="{{ full_name_value|default:'' }}"
+                   placeholder="Enter your full name">
+          </div>
+
+          <div class="form-group">
+            <label for="emailInput" class="form-label">Email address</label>
+            <input type="email" class="form-input" id="emailInput"
+                   name="email" required
+                   value="{{ email_value|default:'' }}"
+                   placeholder="Enter your email address">
+          </div>
+
+          <div class="form-group">
+            <label for="passwordInput" class="form-label">Password</label>
+            <input type="password" class="form-input" id="passwordInput"
+                   name="password" required
+                   placeholder="Enter your password">
+          </div>
+
+          <div class="form-group">
+            <label for="confirmPasswordInput" class="form-label">Confirm Password</label>
+            <input type="password" class="form-input" id="confirmPasswordInput"
+                   name="confirm_password" required
+                   placeholder="Re-enter your password">
+          </div>
+
+          <button type="submit" class="btn-submit">Register</button>
+        </form>
+
+        <div class="divider">OR</div>
+
+        <a href="{% provider_login_url 'google' %}" class="btn-auth-google">
+          <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google icon">
+          Register with Google
+        </a>
+
+        <div class="auth-footer">
+          Already have an account? <a href="{% url 'signin' %}">Login</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function togglePassword(inputId) {
+    const input = document.getElementById(inputId);
+    if (input.type === "password") {
+      input.type = "text";
+    } else {
+      input.type = "password";
+    }
+  }
+
+  // Password strength indicator
+  document.getElementById('passwordInput').addEventListener('input', function(e) {
+    const password = e.target.value;
+    const strengthText = document.querySelector('.password-strength');
+    
+    if (password.length === 0) {
+      strengthText.textContent = 'Use 8 or more characters';
+    } else if (password.length < 8) {
+      strengthText.textContent = 'Too short';
+    } else {
+      strengthText.textContent = 'Good password';
+    }
+  });
+</script>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% comment %} 
+{% extends "base.html" %}
+
+{% load socialaccount %}
+{% load static %}
+
+{% block title %} Register Page {% endblock %}
+
+{% block content %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+  body {
+    background-color: #222222;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  .auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 1rem;
+  }
+
+  .auth-card {
+    background-color: #ffffff;
+    border-radius: 20px;
+    padding: 40px 50px;
+    max-width: 450px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+  }
+
+  .auth-card:hover {
+    transform: scale(1.01);
+  }
+
+  .auth-title {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    color: #333;
+    font-weight: 600;
+  }
+
+  .form-group {
+    margin-bottom: 1.8rem;
+  }
+
+  .form-label {
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+
+  .form-input {
+    border-radius: 10px;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    width: 100%;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+
+  .form-input:focus {
+    border-color: #5b9bd5;
+    box-shadow: 0 0 8px rgba(91, 155, 213, 0.3);
+  }
+
+  .btn-submit {
+    background-color: #5b9bd5;
+    border: none;
+    border-radius: 12px;
+    padding: 0.75rem 2rem;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+    display: block;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .btn-submit:hover {
+    background-color: #498ac3;
+  }
+
+  .btn-auth-google {
+    background-color: #fff;
+    color: #444;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 0.65rem;
+    font-weight: 500;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: box-shadow 0.3s ease;
+    width: 100%;
+    margin-bottom: 1.5rem;
+  }
+
+  .btn-auth-google:hover {
+    box-shadow: 0 0 10px rgba(66, 133, 244, 0.2);
+  }
+
+  .btn-auth-google img {
+    height: 20px;
+    margin-right: 10px;
+  }
+
+  .auth-footer {
+    text-align: center;
+    margin-top: 1.2rem;
+  }
+
+  .auth-footer a {
+    color: #007bff;
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  .auth-footer a:hover {
+    text-decoration: underline;
+  }
+
+  .auth-error {
+    color: #d32f2f;
+    background-color: rgba(255, 235, 238, 0.9);
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-weight: 500;
+  }
+</style>
+
+<div class="container auth-container">
+  <div class="auth-card">
+    <h2 class="auth-title">Create an Account</h2>
+
+    {% if error %}
+    <div class="auth-error">
+      {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="POST">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label for="emailInput" class="form-label">Email address</label>
+        <input type="email" class="form-input" id="emailInput"
+               name="email" required
+               value="{{ email_value|default:'' }}">
+      </div>
+
+      <div class="form-group">
+        <label for="passwordInput" class="form-label">Password</label>
+        <input type="password" class="form-input" id="passwordInput"
+               name="password" required>
+      </div>
+
+      <button type="submit" class="btn-submit">Register</button>
+    </form>
+
+    <a href="{% provider_login_url 'google' %}" class="btn-auth-google">
+      <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google icon">
+      Register with Google
+    </a>
+
+    <div class="auth-footer">
+      <a href="{% url 'signin' %}">Login</a>
+    </div>
+  </div>
+</div>
+{% endblock %}  {% endcomment %}

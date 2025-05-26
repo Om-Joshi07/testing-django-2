@@ -1,0 +1,146 @@
+
+
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<!-- Link CSS after block start -->
+<link rel="stylesheet" href="{% static 'css/home.css' %}" />
+
+
+
+{% comment %} For showing the logged in user {% endcomment %}
+
+{% if user.is_authenticated %}
+
+  {% comment %} <h1>You have been logged in as {{user.first_name}} {{user.last_name}} </h1> {% endcomment %}
+
+{% else %}
+
+  {% comment %} <h1>You are not logged in</h1> {% endcomment %}
+
+{% endif %}
+
+
+
+ <!-- Hero Section -->
+<section class="landing-section">
+  <div class="landing-image-wrapper">
+    <img
+      src="{% static 'img/landing.png' %}"
+      alt="Map illustration"
+      class="map-image"
+    />
+  </div>
+</section>
+
+
+<!-- Features Section -->
+<section class="features">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">OUR FEATURES</span>
+      <h2>AI-driven tools for smarter agricultural decisions</h2>
+    </div>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon" style="margin: 21px;">
+          <img class="onee" src="{% static 'img/1longo.png' %}" alt="Soil Report Icon" />
+        </div>
+        <h3>Soil Report</h3>
+        <p>Get personalized crop recommendations based on AI-powered soil analysis</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <img src="{% static 'img/2longo.png' %}" alt="Chatbot Icon" />
+        </div>
+        <h3>Smart Assistant</h3>
+        <p>24/7 AI guidance on crops, soil health, and agricultural practices</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <img src="{% static 'img/3longo.png' %}" alt="Weather Icon" />
+        </div>
+        <h3>Weather Insights</h3>
+        <p>Real-time forecasts to optimize irrigation and harvest planning</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <img src="{% static 'img/4longo.png' %}" alt="Cost Estimation Icon" />
+        </div>
+        <h3>Cost Calculator</h3>
+        <p>Precise fertilizer cost estimates based on your specific requirements</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Expert Section -->
+<section class="expert">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Expert Guidance</span>
+      <h2>Meet Our Soil Specialist</h2>
+    </div>
+
+    <div class="expert-card">
+      <div class="expert-image">
+        <img src="{% static 'img/specialst image.png' %}" alt="Ganesh Bohora" />
+      </div>
+      <div class="expert-content">
+        <div class="expert-header">
+          <h3>Ganesh Bohora</h3>
+          <span class="expert-role">Soil & Crop Management Specialist</span>
+          <div class="expert-rating">⭐ ⭐ ⭐ ⭐ ⭐</div>
+        </div>
+        <p class="expert-bio">With over 10 years of experience in soil science, I help farmers make data-driven decisions for better yields.</p>
+        <div class="expert-contact">
+          <a href="mailto:anil.thapa@soilsmart.com" class="contact-link">
+            <span class="icon">📧</span> anil.thapa@soilsmart.com
+          </a>
+          <a href="tel:+9779800000000" class="contact-link">
+            <span class="icon">📞</span> +977-9800000000
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- About Section -->
+<section class="about">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">About Us</span>
+      <h2>Data-Driven Farming. Grounded in Insight.</h2>
+    </div>
+
+    <div class="about-content">
+      <div class="about-text">
+        <p>We help farmers make informed decisions through personalized soil analysis and smart crop suggestions. Our platform combines agricultural expertise with AI to provide actionable insights.</p>
+        <p>Whether you're a small-scale farmer or managing large farmland, we aim to boost productivity, reduce waste, and promote sustainability.</p>
+        <a href="#" class="btn btn-secondary">Learn More</a>
+      </div>
+      <div class="about-image">
+        <img src="{% static 'img/our team.png' %}" alt="Our Team" class="about-img" />
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
