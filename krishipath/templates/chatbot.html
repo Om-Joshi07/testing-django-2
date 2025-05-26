@@ -17,18 +17,30 @@
                 <p>AI Agricultural Assistant</p>
             </div>
         </div>
-        
     </div>
 
-    <!-- Chat Messages Area -->
+    <!-- In the chat messages section -->
     <div class="chat-messages" id="chat-messages">
         <!-- Welcome Message -->
         <div class="message bot-message">
             <div class="message-content">
                 <p>👋 Hello! I'm KrishiBot, your agricultural assistant. How can I help you today?</p>
+                <span class="message-time">Just now</span>
             </div>
         </div>
-
+    
+        <!-- Previous Messages -->
+        {% for message in chat_history %}
+            <div class="message {% if message.role == 'user' %}user-message{% else %}bot-message{% endif %}">
+                <div class="message-content">
+                    <p>{{ message.content }}</p>
+                    <span class="message-time">
+                        {{ message.timestamp|timesince }} ago
+                    </span>
+                </div>
+            </div>
+        {% endfor %}
+        
         <!-- Suggested Questions -->
         <div class="suggested-questions">
             <button class="suggestion-btn" onclick="askQuestion('What crops are suitable for my soil?')">
