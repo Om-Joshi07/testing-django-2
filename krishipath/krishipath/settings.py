@@ -192,14 +192,17 @@ SOCIALACCOUNT_PROVIDERS = {
 
 # For Google Login/Register/Logout
 
-LOGIN_URL = '/logins/login/'  # or wherever you want to redirect for login
 
+LOGIN_URL = '/logins/login/'  # or wherever you want to redirect for login
 LOGIN_REDIRECT_URL = '/logins/home/'  # or wherever you want to redirect after login    
-LOGOUT_REDIRECT_URL = '/logins/register/'  
+LOGOUT_REDIRECT_URL = '/'  
 ACCOUNT_LOGOUT_REDIRECT_URL = '/'
 ACCOUNT_SIGNUP_REDIRECT_URL = '/logins/register/'  # or wherever you want to redirect after signup
 
-ACCOUNT_ADAPTER = 'logins.adapter.CustomAccountAdapter' 
+ACCOUNT_ADAPTER = 'logins.adapter.CustomAccountAdapter'
+
+
+
 
 
 
