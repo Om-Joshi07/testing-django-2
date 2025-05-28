@@ -1,0 +1,168 @@
+
+
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block content %}
+
+<style>
+
+
+    h1 {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .profile_section {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .profile{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin-right: 20px;
+        border: 1px solid #ccc;
+    }
+
+    .profile_info{
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .profile_info h4 {
+        margin-top: 0px;
+    }
+
+
+    
+    .profile_edit {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin-left: 20px;
+        border: 1px solid #ccc;
+    }
+
+    .profile_edit form {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: stretch; 
+        gap: 15px;
+        width: 300px; 
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .form-group label {
+        font-weight: 500;
+    }
+
+    .form-group input {
+        padding: 8px;
+        font-size: 14px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    button[type="submit"] {
+    padding: 10px;
+    font-size: 15px;
+    background-color: #3498db; /* soft blue */
+    color: white;
+    border: none;
+    border-radius: 5px; /* subtle rounded corners */
+    cursor: pointer;
+}
+
+button[type="submit"]:hover {
+    background-color: #2980b9; /* darker blue on hover */
+}
+
+
+
+
+
+
+
+</style>
+
+
+<h1>Profile</h1>
+
+<div class="profie_section">
+    <div class="profile">
+
+        <h2>Current User Information</h2>
+
+        <div class="profile_info">
+            <h4>Full Name: {{ user.first_name}} {{user.last_name}} </h4>
+            <h4>Email Address: {{ user.email }}</h4>
+        </div>
+    </div>
+
+
+    <div class="profile_edit">
+        <h2>Edit Profile</h2>
+        <form method="POST" action="{% url 'update_profile' %}">
+            {% csrf_token %}
+
+            {% if success %}
+                <p style="color: green;">{{ success }}</p>
+            {% endif %}
+
+            {% if error %}
+              <p style="color: red;">{{ error }}</p>
+            {% endif %}
+        
+            <div class="form-group">
+                <label for="firstName">First Name</label>
+                <input type="text" id="firstName" name="first_name" placeholder="Enter your new first name" required>
+            </div>
+        
+            <div class="form-group">
+                <label for="lastName">Last Name</label>
+                <input type="text" id="lastName" name="last_name" placeholder="Enter your new last name" required>
+            </div>
+        
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="Enter your new email" required>
+            </div>
+        
+            <div class="form-group">
+                <label for="password">Current Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your current password" required>
+            </div>
+        
+            <div class="form-group">
+                <label for="newPassword">New Password</label>
+                <input type="password" id="newPassword" name="new_password" placeholder="Enter your new password" required>
+            </div>
+        
+            <button type="submit">Confirm</button>
+        </form>
+
+    </div>
+
+
+</div>
+{% endblock  %}
+
+
+
+
+
+

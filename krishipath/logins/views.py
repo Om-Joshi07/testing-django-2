@@ -4,6 +4,10 @@ from django.shortcuts import render, redirect, HttpResponse
 from django.db import IntegrityError
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+
+
 
 import re
 from django.core.validators import validate_email
@@ -131,3 +135,54 @@ def success(request):
 
 def home(request):
     return render(request, 'logins/home.html')
+
+
+
+def profile(request):
+    if request.user.is_authenticated:
+        return render(request, 'logins/profile.html', {'user': request.user})
+    else:
+        return redirect('login')  
+
+
+
+
+# 
+@login_required
+def update_profile(request):
+    if request.method == 'POST':
+        user = request.user
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+        username = request.POST.get('email')
+        password = request.POST.get('password')
+        new_password = request.POST.get('new_password')
+
+        # Verify current password
+        if not user.check_password(password):
+            return render(request, 'logins/profile.html', {'error': 'Incorrect current password.'})
+
+        # Update fields
+        user.first_name = first_name
+        user.last_name = last_name
+        user.username = username
+        user.email = email
+
+        if new_password:
+            user.set_password(new_password)  # This handles hashing
+
+        user.save()
+        return render(request, 'logins/profile.html', {'success': 'Profile updated successfully.'})
+
+    return render(request, 'logins/profile.html')
+
+
+
+
+
+
+
+
+
+

@@ -232,5 +232,5 @@ PASSWORD_RESET_TIMEOUT = 180
 
 # API Part
 
-from decouple import config
-WEATHER_API_KEY = config('WEATHER_API')
+# from decouple import config
+# WEATHER_API_KEY = config('WEATHER_API')
