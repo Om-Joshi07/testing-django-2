@@ -47,66 +47,119 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     function submitLocation(lat, lon, accuracy = null) {
-        const formData = new FormData();
-        formData.append('latitude', lat);
-        formData.append('longitude', lon);
-        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+        const csrfToken = '{{ csrf_token }}';
+        
+        // Create form data for soil report (main request)
+        const soilFormData = new FormData();
+        soilFormData.append('latitude', lat);
+        soilFormData.append('longitude', lon);
+        soilFormData.append('csrfmiddlewaretoken', csrfToken);
 
-        fetch("{% url 'soil_report' %}", {
+        // Create payload for weather API (JSON)
+        const weatherPayload = {
+            latitude: lat,
+            longitude: lon,
+            accuracy: accuracy
+        };
+
+        // Send to soil report endpoint
+        const soilRequest = fetch("{% url 'soil_report' %}", {
             method: "POST",
-            body: formData,
+            body: soilFormData,
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
             }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.soil_data) {
-                // Update the report section
-                const reportDiv = document.getElementById("report");
-                if (reportDiv) {
-                    reportDiv.innerHTML = `
-                        <pre id="soilText">${data.soil_data}</pre>
-                        <button id="downloadBtn" class="download-button">📥 Download Report</button>
-                    `;
-                    
-                    // Reattach download button event
-                    document.getElementById("downloadBtn").addEventListener("click", function() {
-                        const blob = new Blob([data.soil_data], { type: "text/plain" });
-                        const link = document.createElement("a");
-                        link.href = URL.createObjectURL(blob);
-                        link.download = "soil_report.txt";
-                        link.click();
-                    });
+        });
+
+        // Send to weather endpoint
+        const weatherRequest = fetch("{% url 'weather_current' %}", {
+            method: "POST",
+            body: JSON.stringify(weatherPayload),
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        // Process both requests
+        Promise.all([soilRequest, weatherRequest])
+            .then(responses => Promise.all(responses.map(r => r.json())))
+            .then(([soilData, weatherData]) => {
+                // Handle soil report response
+                if (soilData.soil_data) {
+                    updateSoilReport(soilData.soil_data, lat, lon, accuracy);
                 }
                 
-                // Update the map with accuracy circle
-                const mapContainer = document.getElementById("map");
-                if (mapContainer) {
-                    // Clear existing map if any
-                    mapContainer.innerHTML = '';
-                    
-                    const map = L.map(mapContainer).setView([lat, lon], 15);
-                    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        attribution: '&copy; OpenStreetMap contributors'
-                    }).addTo(map);
-                    
-                    // Add marker
-                    L.marker([lat, lon]).addTo(map).bindPopup("You are here").openPopup();
-                    
-                    // Add accuracy circle if available
-                    if (accuracy) {
-                        L.circle([lat, lon], {
-                            radius: accuracy,
-                            color: 'red',
-                            fillColor: '#f03',
-                            fillOpacity: 0.2
-                        }).addTo(map);
-                    }
+                // Handle weather data (you can process this as needed)
+                if (weatherData.weather) {
+                    console.log("Weather data received:", weatherData);
+                    // You might want to display this somewhere in your UI
                 }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // At least show the map even if requests fail
+                updateMapOnly(lat, lon, accuracy);
+            });
+    }
+
+    function updateSoilReport(soilData, lat, lon, accuracy) {
+        // Update the report section
+        const reportDiv = document.getElementById("report");
+        if (reportDiv) {
+            reportDiv.innerHTML = `
+                <pre id="soilText">${soilData}</pre>
+                <button id="downloadBtn" class="download-button">📥 Download Report</button>
+            `;
+            
+            // Reattach download button event
+            document.getElementById("downloadBtn").addEventListener("click", function() {
+                const blob = new Blob([soilData], { type: "text/plain" });
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = "soil_report.txt";
+                link.click();
+            });
+        }
+        
+        // Update the map
+        updateMap(lat, lon, accuracy);
+    }
+
+    function updateMap(lat, lon, accuracy) {
+        const mapContainer = document.getElementById("map");
+        if (mapContainer) {
+            // Clear existing map if any
+            mapContainer.innerHTML = '';
+            
+            const map = L.map(mapContainer).setView([lat, lon], 15);
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+            
+            // Add marker
+            L.marker([lat, lon]).addTo(map).bindPopup("You are here").openPopup();
+            
+            // Add accuracy circle if available
+            if (accuracy) {
+                L.circle([lat, lon], {
+                    radius: accuracy,
+                    color: 'red',
+                    fillColor: '#f03',
+                    fillOpacity: 0.2
+                }).addTo(map);
             }
-        })
-        .catch(error => console.error('Error:', error));
+        }
+    }
+
+    function updateMapOnly(lat, lon, accuracy) {
+        // Just show the map without soil data
+        updateMap(lat, lon, accuracy);
+        const reportDiv = document.getElementById("report");
+        if (reportDiv) {
+            reportDiv.innerHTML = `<p class="no-data">Soil Data not available.</p>`;
+        }
     }
 
     // Check if we already have soil data (prevent duplicate requests)
@@ -114,13 +167,14 @@
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 pos => {
-                    // const lat = pos.coords.latitude;
-                    // const lon = pos.coords.longitude;
-                    // const accuracy = pos.coords.accuracy;
+                    const lat = pos.coords.latitude;
+                    const lon = pos.coords.longitude;
+                    const accuracy = pos.coords.accuracy;
                     
-                    const lat = 28.969;
-                    const lon = 80.194;
-                    const accuracy = 500; 
+                    // For testing - uncomment these to use hardcoded values
+                    // const lat = 28.969;
+                    // const lon = 80.194;
+                    // const accuracy = 500;
         
                     submitLocation(lat, lon, accuracy);
                 },
@@ -128,7 +182,7 @@
                     console.warn("Geolocation failed. Using fallback.");
                     const lat = 28.274;
                     const lon = 83.94;
-                    const accuracy = 1000; // Default accuracy for fallback
+                    const accuracy = 1000;
                     submitLocation(lat, lon, accuracy);
                 },
                 { enableHighAccuracy: true }
@@ -136,7 +190,7 @@
         } else {
             const lat = 28.274;
             const lon = 83.94;
-            const accuracy = 1000; // Default accuracy for fallback
+            const accuracy = 1000;
             submitLocation(lat, lon, accuracy);
         }
     }

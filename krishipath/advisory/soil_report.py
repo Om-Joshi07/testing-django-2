@@ -10,7 +10,6 @@ def soil_data_fetch(latitude, longitude):
             print("Soil data not available.")
             return "❌ The soil information is not available."
 
-        
         response = (
             f"🧾 Soil Report for {R['palika']}, {R['district']} District, {R['province']} Province\n\n"
 

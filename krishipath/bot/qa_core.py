@@ -1,6 +1,5 @@
 
 
-# bot/qa_core.py
 import os
 from dotenv import load_dotenv  
 from langchain_huggingface import HuggingFaceEndpoint
