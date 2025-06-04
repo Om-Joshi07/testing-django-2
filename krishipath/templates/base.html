@@ -30,7 +30,6 @@
         }
     </style>
 
-    {% block extra_css %}{% endblock %}
 </head>
 <body>
     {% include 'navbar.html' %}
@@ -44,93 +43,105 @@
     {% include 'footer.html' %}
 
 
-    {% block extra_js %}
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
-        function initGeoLocation({
-            enableMap = false,
-            fetchUrls = [],
-            csrfToken = '',
-            onComplete = null
-        }) {
-            function postLocationData(lat, lon) {
-                const headers = {
-                    "Content-Type": "application/x-www-form-urlencoded",
-                    "X-CSRFToken": csrfToken
-                };
-                const body = `latitude=${lat}&longitude=${lon}`;
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    function submitLocation(lat, lon, accuracy = null) {
+        const formData = new FormData();
+        formData.append('latitude', lat);
+        formData.append('longitude', lon);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
 
-                fetchUrls.forEach(url => {
-                    fetch(url, { method: "POST", headers, body })
-                        .then(res => {
-                            if (!res.ok) console.error("Fetch failed for", url);
-                            else if (onComplete) onComplete(url);
-                        })
-                        .catch(err => console.error(`Error with ${url}`, err));
-                });
+        fetch("{% url 'soil_report' %}", {
+            method: "POST",
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
             }
-
-            function renderMap(lat, lon, acc, label) {
-                const mapContainer = document.getElementById("map");
-                if (!mapContainer) return;
-
-                const map = L.map(mapContainer).setView([lat, lon], acc ? 15 : 10);
-                L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; OpenStreetMap contributors'
-                }).addTo(map);
-                L.marker([lat, lon]).addTo(map).bindPopup(label).openPopup();
-
-                if (acc) {
-                    L.circle([lat, lon], {
-                        radius: acc,
-                        color: 'red',
-                        fillColor: '#f03',
-                        fillOpacity: 0.5
-                    }).addTo(map);
-                }
-            }
-
-            function fallbackToIP() {
-                fetch('https://ipapi.co/json/')
-                    .then(res => res.json())
-                    .then(data => {
-                        if (enableMap) renderMap(data.latitude, data.longitude, null, "Approximate location");
-                        if (!sessionStorage.getItem("formSubmitted")) {
-                            sessionStorage.setItem("formSubmitted", "true");
-                            postLocationData(data.latitude, data.longitude);
-                        }
-                    })
-                    .catch(err => {
-                        console.error("Location failed completely", err);
-                        alert("Could not determine your location.");
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.soil_data) {
+                // Update the report section
+                const reportDiv = document.getElementById("report");
+                if (reportDiv) {
+                    reportDiv.innerHTML = `
+                        <pre id="soilText">${data.soil_data}</pre>
+                        <button id="downloadBtn" class="download-button">📥 Download Report</button>
+                    `;
+                    
+                    // Reattach download button event
+                    document.getElementById("downloadBtn").addEventListener("click", function() {
+                        const blob = new Blob([data.soil_data], { type: "text/plain" });
+                        const link = document.createElement("a");
+                        link.href = URL.createObjectURL(blob);
+                        link.download = "soil_report.txt";
+                        link.click();
                     });
-            }
-
-            function success(position) {
-                const { latitude, longitude, accuracy } = position.coords;
-
-                if (enableMap) renderMap(latitude, longitude, accuracy, "You are here");
-
-                if (!sessionStorage.getItem("formSubmitted")) {
-                    sessionStorage.setItem("formSubmitted", "true");
-                    postLocationData(latitude, longitude);
+                }
+                
+                // Update the map with accuracy circle
+                const mapContainer = document.getElementById("map");
+                if (mapContainer) {
+                    // Clear existing map if any
+                    mapContainer.innerHTML = '';
+                    
+                    const map = L.map(mapContainer).setView([lat, lon], 15);
+                    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; OpenStreetMap contributors'
+                    }).addTo(map);
+                    
+                    // Add marker
+                    L.marker([lat, lon]).addTo(map).bindPopup("You are here").openPopup();
+                    
+                    // Add accuracy circle if available
+                    if (accuracy) {
+                        L.circle([lat, lon], {
+                            radius: accuracy,
+                            color: 'red',
+                            fillColor: '#f03',
+                            fillOpacity: 0.2
+                        }).addTo(map);
+                    }
                 }
             }
+        })
+        .catch(error => console.error('Error:', error));
+    }
 
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(success, fallbackToIP, {
-                    enableHighAccuracy: true, timeout: 5000, maximumAge: 0
-                });
-            } else {
-                fallbackToIP();
-            }
+    // Check if we already have soil data (prevent duplicate requests)
+    if (!document.getElementById("soilText")) {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                pos => {
+                    // const lat = pos.coords.latitude;
+                    // const lon = pos.coords.longitude;
+                    // const accuracy = pos.coords.accuracy;
+                    
+                    const lat = 28.969;
+                    const lon = 80.194;
+                    const accuracy = 500; 
+        
+                    submitLocation(lat, lon, accuracy);
+                },
+                err => {
+                    console.warn("Geolocation failed. Using fallback.");
+                    const lat = 28.274;
+                    const lon = 83.94;
+                    const accuracy = 1000; // Default accuracy for fallback
+                    submitLocation(lat, lon, accuracy);
+                },
+                { enableHighAccuracy: true }
+            );
+        } else {
+            const lat = 28.274;
+            const lon = 83.94;
+            const accuracy = 1000; // Default accuracy for fallback
+            submitLocation(lat, lon, accuracy);
         }
-    </script>
-
-    {% endblock %}
-
-    
-
+    }
+</script>
+{% endblock %}
 
 </body>
 </html>

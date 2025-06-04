@@ -1,0 +1,19 @@
+
+
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block content %}
+
+<h1>{{user.first_name}} {{user.last_name}}</h1>
+<h1>This is community page. </h1>
+
+
+<form action="submit">
+    <input type="text" name="msg" id="msg" placeholder="Enter your message here">
+    <button type="submit">Submit</button>
+</form>
+
+
+{% endblock  %}

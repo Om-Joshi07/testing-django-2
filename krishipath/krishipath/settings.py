@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'advisory',
     'bot',      # Bot Page
     'weather',  # Weather Page
+    'community',  # Community Page
     # For google login
     'allauth',  # Authentication
     'allauth.account',

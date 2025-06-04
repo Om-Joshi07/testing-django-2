@@ -147,7 +147,6 @@ def profile(request):
 
 
 
-# 
 @login_required
 def update_profile(request):
     if request.method == 'POST':

@@ -6,17 +6,28 @@ from advisory.soil_report import soil_data_fetch
 
 # Create your views here.
 
+from django.http import JsonResponse
+
 def generate_report(request):
     if request.method == 'POST':
         lat = request.POST.get('latitude')
         lon = request.POST.get('longitude')
+
         soil_data = soil_data_fetch(lat, lon)
 
-        if soil_data:
-            print("Soil data fetched successfully.")
-            return render(request, 'advisory.html', {'soil_data': soil_data})
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            # AJAX request - return JSON
+            if soil_data:
+                return JsonResponse({'soil_data': soil_data, 'lat': lat, 'lon': lon})
+            else:
+                return JsonResponse({'error': 'Soil data not available'}, status=400)
         else:
-            print("Soil data not available.")
-            return render(request, 'advisory.html', {'error': 'Soil data not available.'})
+            # Regular form submission (fallback)
+            context = {
+                'soil_data': soil_data, 
+                'lat': lat,
+                'lon': lon,
+            }
+            return render(request, 'advisory.html', context)
     
     return render(request, 'advisory.html')
