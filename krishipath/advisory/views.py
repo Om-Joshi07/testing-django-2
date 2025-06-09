@@ -18,9 +18,17 @@ def generate_report(request):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             # AJAX request - return JSON
             if soil_data:
-                return JsonResponse({'soil_data': soil_data, 'lat': lat, 'lon': lon})
+                return JsonResponse({
+                    'soil_data': soil_data, 
+                    'lat': lat, 
+                    'lon': lon,
+                    'success': True
+                })
             else:
-                return JsonResponse({'error': 'Soil data not available'}, status=400)
+                return JsonResponse({
+                    'error': 'Soil data not available',
+                    'success': False
+                }, status=400)
         else:
             # Regular form submission (fallback)
             context = {

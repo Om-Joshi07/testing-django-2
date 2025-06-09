@@ -19,6 +19,8 @@ from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from django.core.mail import send_mail
 from . import views
+from advisory import views as advisory_views
+
 
 # def my_send_mail(*args, **kwargs):
 #     print("Sending mail with args:", args, kwargs)
@@ -36,6 +38,7 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
     path('advisory/', include('advisory.urls')),
+    path('soil_report/', advisory_views.generate_report, name='soil_report'),
     path('bot/', include('bot.urls')),
     path('weather/', include('weather.urls')),
     path('logout/', views.logout_user, name='logout'),

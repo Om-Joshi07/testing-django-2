@@ -4,28 +4,27 @@ from django.shortcuts import render, HttpResponse
 from weather.weather_current import weather_data_now
 import json
 
+from django.http import JsonResponse
+
+from django.shortcuts import render
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+from django.http import JsonResponse
+from django.shortcuts import render
+
 def weather(request):
-    if request.method == 'POST':
-        # Check content type
-        if request.content_type == 'application/json':
-            try:
-                data = json.loads(request.body)
-                lat = data.get('latitude')
-                lon = data.get('longitude')
-            except json.JSONDecodeError:
-                return HttpResponse("Invalid JSON data", status=400)
-        else:
-            # Fallback to form data
-            lat = request.POST.get('latitude')
-            lon = request.POST.get('longitude')
+    # Just render the page with empty placeholders, no lat/lon needed on initial load
+    return render(request, 'weather.html')
 
-        if lat and lon:
-            information = weather_data_now(lat, lon)
-            request.session['weather_info'] = information
-            return HttpResponse(status=200)
-        else:
-            return HttpResponse("Invalid coordinates", status=400)
+@csrf_exempt
+def weather_api(request):
+    lat = request.GET.get('latitude')
+    lon = request.GET.get('longitude')
 
-    # GET request
-    weather_info = request.session.get('weather_info', None)
-    return render(request, 'weather.html', {'weather_info': weather_info})
+    if lat and lon:
+        weather_info = weather_data_now(lat, lon)
+        return JsonResponse({'weather_info': weather_info})
+    else:
+        return JsonResponse({'error': 'Missing latitude or longitude'}, status=400)

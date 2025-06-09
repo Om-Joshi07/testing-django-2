@@ -1,18 +1,15 @@
-
-
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% block title %}KrishiPath{% endblock %}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
-    <link rel="stylesheet" href="{% static 'css/footer.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="{% static 'css/navbar.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/footer.css' %}" />
     <style>
-
         html, body {
             height: 100%;
             margin: 0;
@@ -25,14 +22,18 @@
         }
         main {
             flex: 1 0 auto;
-            {% comment %} padding-top: 80px; /* Navbar height offset */ {% endcomment %}
+            /* padding-top: 80px; Navbar height offset */
             padding-bottom: 40px;
         }
     </style>
-
 </head>
 <body>
     {% include 'navbar.html' %}
+
+    <!-- Hidden form to provide CSRF token for JS -->
+    <form id="csrfForm" style="display:none;">
+        {% csrf_token %}
+    </form>
 
     <main class="main-content">
         {% block content %}
@@ -42,78 +43,85 @@
 
     {% include 'footer.html' %}
 
-
 {% block extra_js %}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+    // Helper to get query parameters from URL
+    function getQueryParams() {
+        const params = {};
+        window.location.search.substring(1).split("&").forEach(pair => {
+            if (pair) {
+                const [key, value] = pair.split("=");
+                params[decodeURIComponent(key)] = decodeURIComponent(value || "");
+            }
+        });
+        return params;
+    }
+
+    // Submit location: sends AJAX requests to soil and weather endpoints
     function submitLocation(lat, lon, accuracy = null) {
-        const csrfToken = '{{ csrf_token }}';
-        
-        // Create form data for soil report (main request)
+        const csrfToken = document.querySelector('#csrfForm input[name="csrfmiddlewaretoken"]').value;
+
+        // (1) SOIL REPORT REQUEST
         const soilFormData = new FormData();
         soilFormData.append('latitude', lat);
         soilFormData.append('longitude', lon);
         soilFormData.append('csrfmiddlewaretoken', csrfToken);
 
-        // Create payload for weather API (JSON)
-        const weatherPayload = {
-            latitude: lat,
-            longitude: lon,
-            accuracy: accuracy
-        };
-
-        // Send to soil report endpoint
-        const soilRequest = fetch("{% url 'soil_report' %}", {
+        fetch("{% url 'soil_report' %}", {
             method: "POST",
             body: soilFormData,
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
             }
-        });
+        })
+        .then(response => response.json())
+        .then(soilData => {
+            if (soilData.success) {
+                updateSoilReport(soilData.soil_data, soilData.lat, soilData.lon, accuracy);
+            } else {
+                console.error('Soil Error:', soilData.error);
+            }
+        })
+        .catch(error => console.error('Soil Fetch Error:', error));
 
-        // Send to weather endpoint
-        const weatherRequest = fetch("{% url 'weather_current' %}", {
+        // (2) WEATHER REQUEST
+        const weatherFormData = new FormData();
+        weatherFormData.append('latitude', lat);
+        weatherFormData.append('longitude', lon);
+        weatherFormData.append('csrfmiddlewaretoken', csrfToken);
+
+        const weatherUrl = "{% url 'weather_current' %}";
+
+        fetch(weatherUrl, {
             method: "POST",
-            body: JSON.stringify(weatherPayload),
+            body: weatherFormData,
             headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken,
                 'X-Requested-With': 'XMLHttpRequest'
             }
-        });
-
-        // Process both requests
-        Promise.all([soilRequest, weatherRequest])
-            .then(responses => Promise.all(responses.map(r => r.json())))
-            .then(([soilData, weatherData]) => {
-                // Handle soil report response
-                if (soilData.soil_data) {
-                    updateSoilReport(soilData.soil_data, lat, lon, accuracy);
+        })
+        .then(response => response.json())
+        .then(weatherData => {
+            if (weatherData.weather_info) {
+                // Redirect to weather page only if NOT already on it
+                if (!window.location.pathname.startsWith(weatherUrl)) {
+                    window.location.href = `${weatherUrl}?latitude=${lat}&longitude=${lon}`;
                 }
-                
-                // Handle weather data (you can process this as needed)
-                if (weatherData.weather) {
-                    console.log("Weather data received:", weatherData);
-                    // You might want to display this somewhere in your UI
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                // At least show the map even if requests fail
-                updateMapOnly(lat, lon, accuracy);
-            });
+            } else {
+                console.error('Weather Error:', weatherData.error);
+            }
+        })
+        .catch(error => console.error('Weather Fetch Error:', error));
     }
 
+    // Update soil report section in page
     function updateSoilReport(soilData, lat, lon, accuracy) {
-        // Update the report section
         const reportDiv = document.getElementById("report");
         if (reportDiv) {
             reportDiv.innerHTML = `
                 <pre id="soilText">${soilData}</pre>
                 <button id="downloadBtn" class="download-button">📥 Download Report</button>
             `;
-            
-            // Reattach download button event
             document.getElementById("downloadBtn").addEventListener("click", function() {
                 const blob = new Blob([soilData], { type: "text/plain" });
                 const link = document.createElement("a");
@@ -122,26 +130,19 @@
                 link.click();
             });
         }
-        
-        // Update the map
         updateMap(lat, lon, accuracy);
     }
 
+    // Update the map with marker and accuracy circle
     function updateMap(lat, lon, accuracy) {
         const mapContainer = document.getElementById("map");
         if (mapContainer) {
-            // Clear existing map if any
             mapContainer.innerHTML = '';
-            
             const map = L.map(mapContainer).setView([lat, lon], 15);
             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; OpenStreetMap contributors'
             }).addTo(map);
-            
-            // Add marker
             L.marker([lat, lon]).addTo(map).bindPopup("You are here").openPopup();
-            
-            // Add accuracy circle if available
             if (accuracy) {
                 L.circle([lat, lon], {
                     radius: accuracy,
@@ -153,8 +154,8 @@
         }
     }
 
+    // Update map only (no soil data)
     function updateMapOnly(lat, lon, accuracy) {
-        // Just show the map without soil data
         updateMap(lat, lon, accuracy);
         const reportDiv = document.getElementById("report");
         if (reportDiv) {
@@ -162,41 +163,48 @@
         }
     }
 
-    // Check if we already have soil data (prevent duplicate requests)
-    if (!document.getElementById("soilText")) {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                pos => {
-                    const lat = pos.coords.latitude;
-                    const lon = pos.coords.longitude;
-                    const accuracy = pos.coords.accuracy;
-                    
-                    // For testing - uncomment these to use hardcoded values
-                    // const lat = 28.969;
-                    // const lon = 80.194;
-                    // const accuracy = 500;
-        
-                    submitLocation(lat, lon, accuracy);
-                },
-                err => {
-                    console.warn("Geolocation failed. Using fallback.");
-                    const lat = 28.274;
-                    const lon = 83.94;
-                    const accuracy = 1000;
-                    submitLocation(lat, lon, accuracy);
-                },
-                { enableHighAccuracy: true }
-            );
-        } else {
-            const lat = 28.274;
-            const lon = 83.94;
-            const accuracy = 1000;
-            submitLocation(lat, lon, accuracy);
+    // Main logic: check if URL already has lat & lon to avoid infinite reload
+    const queryParams = getQueryParams();
+
+    if (!(queryParams.latitude && queryParams.longitude)) {
+        // Only run geolocation and submitLocation if soil report NOT present
+        if (!document.getElementById("soilText")) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    pos => {
+                        // const lat = pos.coords.latitude;
+                        // const lon = pos.coords.longitude;
+                        // const accuracy = pos.coords.accuracy;
+
+                        const lat = 26.996;
+                        const lon = 85.044;
+                        const accuracy = 100;
+
+
+                        submitLocation(lat, lon, accuracy);
+                    },
+                    err => {
+                        console.warn("Geolocation failed. Using fallback.");
+                        const lat = 28.969;
+                        const lon = 80.194;
+                        const accuracy = 1000;
+                        submitLocation(lat, lon, accuracy);
+                    },
+                    { enableHighAccuracy: true }
+                );
+            } else {
+                const lat = 28.969;
+                const lon = 80.194;
+                const accuracy = 1000;
+                submitLocation(lat, lon, accuracy);
+            }
         }
+    } else {
+        console.log("Latitude and Longitude present in URL, skipping geolocation.");
+        // Optionally call updateMapOnly or other logic if you want map/report without refetch
+        // updateMapOnly(parseFloat(queryParams.latitude), parseFloat(queryParams.longitude), null);
     }
 </script>
 {% endblock %}
-
 </body>
 </html>
-
