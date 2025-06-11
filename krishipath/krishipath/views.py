@@ -18,3 +18,8 @@ def logout_user(request):
 
     messages.info(request, "You've been logged out. Session restarted.")
     return redirect('home')  # Redirect wherever you'd like (home, onboarding, etc.)
+
+
+
+def aboutus(request):
+    return render(request, 'aboutus.html')

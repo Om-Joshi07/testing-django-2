@@ -176,6 +176,8 @@
                         // const lon = pos.coords.longitude;
                         // const accuracy = pos.coords.accuracy;
 
+                        // Hardcoded lat & lon
+
                         const lat = 26.996;
                         const lon = 85.044;
                         const accuracy = 100;
@@ -185,18 +187,20 @@
                     },
                     err => {
                         console.warn("Geolocation failed. Using fallback.");
-                        const lat = 28.969;
-                        const lon = 80.194;
-                        const accuracy = 1000;
+                        // const lat = 28.969;
+                        // const lon = 80.194;
+                        // const accuracy = 1000;
                         submitLocation(lat, lon, accuracy);
+                        console.log("No Location access")
                     },
                     { enableHighAccuracy: true }
                 );
             } else {
-                const lat = 28.969;
-                const lon = 80.194;
-                const accuracy = 1000;
+                // const lat = 28.969;
+                // const lon = 80.194;
+                // const accuracy = 1000;
                 submitLocation(lat, lon, accuracy);
+                console.log("No Location access")
             }
         }
     } else {

@@ -26,6 +26,11 @@ def get_qa_chain():
     If the context is insufficient or you do not know the answer, state that honestly. Do not attempt to fabricate an answer or provide guesses.
     
     When responding with multiple points, list each point clearly on a separate line for readability. Use bullet points or numbering where appropriate.
+
+    If user asks greets you , you should respond with a friendly greeting instead of answering as it asked for a question.
+
+    Also, you have to try answering user's question in a way that is easy to understand for a non-expert in the field as well as is human readable with 
+    proper organization and formatting.
     
     Context:
     {context}

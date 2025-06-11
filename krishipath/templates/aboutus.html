@@ -1,0 +1,870 @@
+
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<style>
+        :root {
+            --solvance-green: #2d5f41;
+            --solvance-light: #f8fafb;
+            --solvance-accent: #34d399;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --background: #ffffff;
+            --border: #e5e7eb;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+
+        /* Mobile menu toggle */
+        .mobile-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #f8fafb 0%, #ffffff 100%);
+            padding: 4rem 0;
+        }
+
+        .hero-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .hero-content h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .hero-content p {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .hero-image img {
+            width: 100%;
+            border-radius: 1rem;
+            box-shadow: 0 30px 40px rgba(57, 255, 84, 0.2); 
+            transition: transform 0.3s, box-shadow 0.3s; 
+        }
+
+        .hero-image img:hover {
+            box-shadow: 0 35px 50px rgba(57, 255, 84, 0.21); 
+            transform: translateY(-5px); 
+        }
+
+        /* Origin Story */
+        .origin-story {
+            padding: 4rem 0;
+            text-align: center;
+        }
+
+        .section-subtitle {
+            color: var(--solvance-green);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            line-height: 1.3;
+        }
+
+        .section-description {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Vision Mission */
+        .vision-mission {
+            padding: 4rem 0;
+            background: #f9fafb;
+        }
+
+        .vision-mission-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .vision-mission-card {
+            background: var(--solvance-green);
+            color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .vision-mission-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(45, 95, 65, 0.3);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-icon {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-right: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .card-content {
+            font-size: 1.125rem;
+            line-height: 1.6;
+            opacity: 0.95;
+        }
+
+        /* Team Section */
+        .team-section {
+            padding: 4rem 0;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 3rem
+        }
+        
+        .team-member {
+            position: relative;
+            overflow: hidden;
+            border-radius: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .team-member:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .team-member img {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .team-member:hover img {
+            transform: scale(1.05);
+        }
+
+        .team-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(84, 110, 94, 0.558);
+            color: rgb(254, 254, 254);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .team-member:hover .team-overlay {
+            opacity: 1;
+        }
+
+        .member-name {
+            font-weight: 700;
+            font-size: 1.125rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .member-role {
+            font-size: 0.875rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .member-id {
+            font-size: 0.75rem;
+            opacity: 0.75;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            padding: 4rem 0;
+            background: #f9fafb;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--solvance-green);
+            color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(45, 95, 65, 0.3);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .stat-label {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-description {
+            font-size: 0.875rem;
+            opacity: 0.8;
+        }
+
+        /* SDG Section */
+        .sdg-section {
+            padding: 4rem 0;
+        }
+
+        .sdg-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .sdg-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .sdg-card:hover {
+            border-color: var(--solvance-green);
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .sdg-image {
+            width: 7rem;
+            height: 7rem;
+            margin: 0 auto 1.5rem;
+        }
+
+        .sdg-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+        .sdg-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .sdg-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* FAQ Section */
+        .faq-section {
+            padding: 4rem 0;
+            background: white;
+        }
+
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .faq-item:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .faq-question {
+            background: none;
+            border: none;
+            width: 100%;
+            padding: 1.5rem;
+            text-align: left;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: color 0.3s;
+        }
+
+        .faq-question:hover {
+            color: var(--solvance-green);
+        }
+
+        .faq-answer {
+            padding: 0 1.5rem 1.5rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            display: none;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        .faq-icon {
+            transition: transform 0.3s;
+        }
+
+        .faq-item.active .faq-icon {
+            transform: rotate(180deg);
+        }
+
+        /* Footer */
+        .footer {
+            background: #1f2937;
+            color: white;
+            padding: 4rem 0 2rem;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-brand h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .footer-brand p {
+            color: #9ca3af;
+            margin-bottom: 1.5rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-links a {
+            color: #9ca3af;
+            font-size: 1.25rem;
+            transition: color 0.3s;
+        }
+
+        .social-links a:hover {
+            color: white;
+        }
+
+        .footer-section h4 {
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section ul li a {
+            color: #9ca3af;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-section ul li a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #374151;
+            padding-top: 2rem;
+            text-align: center;
+            color: #9ca3af;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-toggle {
+                display: block;
+            }
+
+            .hero-container {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+
+            .vision-mission-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .team-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sdg-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .stat-number {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-content h1 {
+                font-size: 1.75rem;
+            }
+
+            .section-title {
+                font-size: 1.75rem;
+            }
+        }
+
+        /* Animation Classes */
+        .fade-in-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease-out;
+        }
+
+        .fade-in-up.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .counter {
+            opacity: 0;
+            animation: counterFade 2s ease-out forwards;
+        }
+
+        @keyframes counterFade {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+
+<!-- Navigation -->
+    
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-container">
+                <div class="hero-content fade-in-up">
+                    <h1>Empowering Farmers with Smart Agriculture</h1>
+                    <p>Krishipath is revolutionizing farming by providing data-driven insights, real-time guidance, and personalized support. Our AI-powered platform combines cutting-edge technology with localized agricultural expertise to help farmers make informed decisions, boost productivity, and embrace sustainable practices.</p>
+                </div>
+                <div class="hero-image fade-in-up">
+                    <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600" alt="Professional business meeting with handshake">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Origin Story -->
+    <section class="origin-story">
+        <div class="container">
+            <div class="fade-in-up">
+                <p class="section-subtitle">Data-Driven Farming, Grounded in Insight.</p>
+                <h2 class="section-title">Krishipath was founded to make smart farming accessible through technology</h2>
+                <p class="section-description">What began as an academic project has evolved into a comprehensive agricultural support system. We recognized that farming advice was often generic, inaccessible, or expensive. Our mission became clear: democratize agricultural knowledge and make data-driven farming accessible to every farmer, regardless of land size or tech literacy.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Vision Mission -->
+    <section class="vision-mission">
+        <div class="container">
+            <div class="vision-mission-grid">
+                <div class="vision-mission-card fade-in-up">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                        <h3 class="card-title">Vision</h3>
+                    </div>
+                    <p class="card-content">To become South Asia's most trusted farming companion — where data, wisdom, and harvests grow together. We envision fields where every farmer, from terrace to valley, commands agricultural insights once reserved for corporate farms.</p>
+                </div>
+                <div class="vision-mission-card fade-in-up">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <h3 class="card-title">Mission</h3>
+                    </div>
+                    <p class="card-content">To help farmers cultivate prosperity by delivering intelligent, earth-smart solutions. We blend chatbot technology, soil science, and hyperlocal knowledge to transform how farmers nurture their land and livelihoods.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="team-section">
+        <div class="container">
+            <div class="fade-in-up" style="text-align: center; margin-bottom: 3rem;">
+                <h2 class="section-title">Built by <span style="color: var(--solvance-green);">Students</span>, Backed by <span style="color: var(--solvance-green);">Passion</span></h2>
+                <p class="section-description">Our diverse team of backend developers, web designers, and researchers share one goal: building a better future for agriculture with technology. With backgrounds from top institutions and mindsets alike, we blend precision with creativity in everything we do.</p>
+            </div>
+            <div class="team-grid">
+                <div class="team-member fade-in-up">
+                    <img src="{% static "img/3p.jpg" %}" alt="Om Joshi">
+                    <div class="team-overlay">
+                        <h4 class="member-name">Om Joshi</h4>
+                        <p class="member-role">Backend & Chatbot Developer</p>
+                        <p class="member-id">ID: 25123818</p>
+                    </div>
+                </div>
+                <div class="team-member fade-in-up">
+                    <img src="{% static "img/me2.jpg" %}" alt="Hyandri Maharjan">
+                    <div class="team-overlay">
+                        <h4 class="member-name">Hyandri Maharjan</h4>
+                        <p class="member-role">Frontend Developer</p>
+                        <p class="member-id">ID: 25123801</p>
+                    </div>
+                </div>
+                <div class="team-member fade-in-up">
+                    <img src="{% static "img/2p.jpg" %}" alt="Ankit Thapa">
+                    <div class="team-overlay">
+                        <h4 class="member-name">Ankit Thapa</h4>
+                        <p class="member-role">Data Manager</p>
+                        <p class="member-id">ID: 25123782</p>
+                    </div>
+                </div>
+                <div class="team-member fade-in-up">
+                    <img src="{% static "img/1P.jpg" %}" alt="Nitesh yogi">
+                    <div class="team-overlay">
+                        <h4 class="member-name">Nitesh yogi</h4>
+                        <p class="member-role">Lead QA Tester</p>
+                        <p class="member-id">ID: 25126468</p>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+<section class="stats-section">
+    <div class="container">
+        <div class="fade-in-up" style="text-align: center; margin-bottom: 3rem;">
+            <h2 class="section-title">The <span style="color: var(--krishipath-green);">Heart</span> Behind Our Project</h2>
+            <p class="section-description">Krishipath started as a classroom dream, but grew into something bigger. These numbers represent our learning journey and the real-world impact we aim to create through agricultural innovation.</p>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-card fade-in-up">
+                <div class="stat-number counter" data-target="100" data-suffix="%">0%</div>
+                <div class="stat-label">Student-Powered</div>
+                <div class="stat-description">Built by agriculture enthusiasts</div>
+            </div>
+            <div class="stat-card fade-in-up">
+                <div class="stat-number counter" data-target="2">0</div>
+                <div class="stat-label">Core Features</div>
+                <div class="stat-description">Chatbot to Weather</div>
+            </div>
+            <div class="stat-card fade-in-up">
+                <div class="stat-number counter" data-target="50">0+</div>
+                <div class="stat-label">Farmers Consulted</div>
+                <div class="stat-description">During field research</div>
+            </div>
+            <div class="stat-card fade-in-up">
+                <div class="stat-number counter" data-target="1">0</div>
+                <div class="stat-label">Big Dream</div>
+                <div class="stat-description">To transform rural farming</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+    <!-- SDG Section -->
+<section class="sdg-section">
+    <div class="container">
+        <div class="fade-in-up" style="text-align: center;">
+            <h2 class="section-title">Sustainable Development <span style="color: var(--krishipath-green);">Goals</span></h2>
+            <p class="section-description">Our commitment extends beyond agricultural technology. We actively contribute to global sustainability through our solutions, supporting key UN Sustainable Development Goals.</p>
+        </div>
+        <div class="sdg-grid">
+            <div class="sdg-card fade-in-up">
+                <div class="sdg-image">
+                    <img src="{% static 'img/sdg2.jpg'%}" alt="Zero Hunger Icon">
+                </div>
+                <h3 class="sdg-title">Zero Hunger</h3>
+                <p class="sdg-description">Our farming solutions help increase crop yields and food security, contributing to the elimination of hunger in rural communities.</p>
+            </div>
+            <div class="sdg-card fade-in-up">
+                <div class="sdg-image">
+                    <img src= "{% static 'img/sdg9.png' %}" alt="Industry Innovation Icon">
+                </div>
+                <h3 class="sdg-title">Industry, Innovation & Infrastructure</h3>
+                <p class="sdg-description">We build resilient agricultural infrastructure and promote inclusive innovation to support sustainable farming communities.</p>
+            </div>
+            <div class="sdg-card fade-in-up">
+                <div class="sdg-image">
+                    <img src="{% static "img/sdg12.jpg" %}" alt="Responsible Consumption Icon">
+                </div>
+                <h3 class="sdg-title">Responsible Consumption & Production</h3>
+                <p class="sdg-description">Our precision agriculture tools help farmers optimize resource use and reduce waste in food production systems.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+    <!-- FAQ Section -->
+<section class="faq-section">
+    <div class="container">
+        <div class="faq-container">
+            <div class="fade-in-up" style="text-align: center; margin-bottom: 3rem;">
+                <h2 class="section-title">You Have <span style="color: var(--krishipath-green);">Questions</span>, We Have <span style="color: var(--krishipath-green);">Answers</span></h2>
+            </div>
+            <div class="fade-in-up">
+                <div class="faq-item">
+                    <button class="faq-question">
+                        Who can benefit from Krishipath's services?
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </button>
+                    <div class="faq-answer">
+                        Krishipath is designed for all farmers looking to improve their agricultural practices. Whether you're a small-scale farmer with limited resources, a medium-sized farm looking to optimize yields, or an agricultural cooperative seeking data-driven solutions, our platform adapts to your specific needs and local conditions.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        What features does Krishipath offer?
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </button>
+                    <div class="faq-answer">
+                        We offer comprehensive agricultural tools including our AI-powered farming assistant chatbot, personalized soil health analysis, weather forecasting, fertilizer calculators, and crop recommendation systems. Our platform combines local agricultural knowledge with smart technology to provide actionable farming insights.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        How does Krishipath help with crop management?
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </button>
+                    <div class="faq-answer">
+                        Our crop management tools analyze your soil data, local weather patterns, and crop characteristics to provide personalized planting schedules, irrigation recommendations, and pest management advice. We combine traditional farming wisdom with data science to help you maximize yields while minimizing resource use.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        Is Krishipath accessible to farmers with limited internet access?
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </button>
+                    <div class="faq-answer">
+                        We're developing offline functionality and SMS-based services for areas with poor connectivity. Currently, basic features are available via low-bandwidth mobile web, and we're partnering with local agricultural centers to provide access points in remote communities.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        How accurate are Krishipath's recommendations?
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </button>
+                    <div class="faq-answer">
+                        Our recommendations are based on verified agricultural research and localized data. While we maintain 85-90% accuracy for most common crops, we always recommend combining our suggestions with your practical farming experience and consulting local agricultural experts when making major decisions.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+    <!-- Footer -->
+    
+
+    <script>
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all fade-in-up elements
+        document.querySelectorAll('.fade-in-up').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Counter animation
+        function animateCounter(element) {
+            const target = parseInt(element.dataset.target);
+            const prefix = element.dataset.prefix || '';
+            const suffix = element.dataset.suffix || '';
+            const duration = 2000;
+            const increment = target / (duration / 16);
+            let current = 0;
+
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    element.textContent = prefix + target.toLocaleString() + suffix;
+                    clearInterval(timer);
+                } else {
+                    element.textContent = prefix + Math.floor(current).toLocaleString() + suffix;
+                }
+            }, 16);
+        }
+
+        // Counter observer
+        const counterObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !entry.target.classList.contains('animated')) {
+                    entry.target.classList.add('animated');
+                    animateCounter(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        document.querySelectorAll('.counter').forEach(counter => {
+            counterObserver.observe(counter);
+        });
+
+        // FAQ functionality
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', () => {
+                const faqItem = question.closest('.faq-item');
+                const isActive = faqItem.classList.contains('active');
+                
+                // Close all FAQ items
+                document.querySelectorAll('.faq-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                // Open clicked item if it wasn't active
+                if (!isActive) {
+                    faqItem.classList.add('active');
+                }
+            });
+        });
+
+        // Mobile menu toggle (placeholder for future implementation)
+        document.querySelector('.mobile-toggle').addEventListener('click', () => {
+            // Mobile menu functionality can be added here
+            console.log('Mobile menu toggle clicked');
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Initial animation trigger for elements in viewport
+        setTimeout(() => {
+            document.querySelectorAll('.fade-in-up').forEach(el => {
+                const rect = el.getBoundingClientRect();
+                const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+                if (isVisible) {
+                    el.classList.add('animate');
+                }
+            });
+        }, 100);
+    </script>
+
+
+{% endblock  %}

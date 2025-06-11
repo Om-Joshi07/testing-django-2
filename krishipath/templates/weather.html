@@ -56,7 +56,6 @@
     margin-bottom: 1rem;
   }
 
-  /* Forecast section */
   .forecast_section {
     display: flex;
     gap: 2rem;
@@ -86,11 +85,74 @@
     font-size: 0.95rem;
   }
 
+  .hourly-wrapper {
+
+    margin-top: 1.5rem;
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+  }
+
+  .hourly-scroll {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 0;
+  }
+
+  .hourly-wrapper h3 {
+    text-align: center;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    color: #222;
+  }
+
+  .hour-card {
+    background-color: #eef3f8;
+    padding: 1rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    min-width: 150px;
+    flex-shrink: 0;
+  }
+
+
+
+  .hour-time {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: #222;
+  }
+
+  .hour-temp {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin: 0.5rem 0;
+  }
+
   .fallback, .error {
     text-align: center;
     padding: 2rem;
     color: #444;
     width: 100%;
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .hourly-wrapper::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .hourly-wrapper::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+
+  .hourly-wrapper::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+  }
+
+  .hourly-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #555;
   }
 </style>
 
@@ -110,14 +172,38 @@ document.addEventListener('DOMContentLoaded', function() {
         const lat = position.coords.latitude;
         const lon = position.coords.longitude;
 
-        // const lat = 26.996;
-        // const lon = 85.044;
-
         fetch(`/weather/api/?latitude=${lat}&longitude=${lon}`)
           .then(response => response.json())
           .then(data => {
             if (data.weather_info) {
               const lines = data.weather_info.split('\n');
+
+              // Generate hourly forecast cards
+              let hourlyCards = '';
+              let lineIndex = 11; // Starting index for hourly data
+              
+              for (let i = 0; i < 8; i++) {
+                const isCurrent = i === 0;
+                const time = lines[lineIndex].replace('Time: ', '');
+                const condition = lines[lineIndex+1].replace('Condition: ', '');
+                const temp = lines[lineIndex+2].replace('Temperature: ', '');
+                const feelsLike = lines[lineIndex+3].replace('Feels Like: ', '');
+                const wind = lines[lineIndex+4].replace('Wind: ', '');
+                const humidity = lines[lineIndex+5].replace('Humidity: ', '');
+                lineIndex += 6;
+
+                hourlyCards += `
+                  <div class="hour-card ${isCurrent ? 'current' : ''}">
+                    <div class="hour-time">${time}</div>
+                    <div>${condition}</div>
+                    <div class="hour-temp">${temp}</div>
+                    <div>Feels: ${feelsLike}</div>
+                    <div>Wind: ${wind}</div>
+                    <div>Humidity: ${humidity}</div>
+                  </div>
+                `;
+              }
+
               container.innerHTML = `
                 <div class="section">
                   <h2>Location Info</h2>
@@ -132,29 +218,38 @@ document.addEventListener('DOMContentLoaded', function() {
                   <div class="temperature">${lines[6]}</div>
                   <div class="weather-status">${lines[9]}</div>
                   <p><strong>Feels Like:</strong> ${lines[7]}</p>
-                </div>
-
-                <div class="section">
-                  <h2>Other Details</h2>
-                  <p><strong>BS Date:</strong> ${lines[4]}</p>
-                  <p><strong>English Date:</strong> ${lines[5]}</p>
                   <p><strong>Humidity:</strong> ${lines[8]}</p>
                   <p><strong>Wind Speed:</strong> ${lines[10]}</p>
                 </div>
 
+                <div class="section">
+                  <h2>Date Info</h2>
+                  <p><strong>BS Date:</strong> ${lines[4]}</p>
+                  <p><strong>English Date:</strong> ${lines[5]}</p>
+                </div>
+
+                <div class="hourly-wrapper">
+                  <h3>24-Hour Forecast</h3>
+                  <div class="hourly-scroll">
+                    ${hourlyCards}
+                  </div>
+                </div>
+
                 <div class="forecast_section">
                   <div class="forecast">
-                    <h3>Forecast for Tomorrow</h3>
-                    <p><strong>Max Temp:</strong> ${lines[12]}</p>
-                    <p><strong>Min Temp:</strong> ${lines[13]}</p>
-                    <p><strong>Condition:</strong> ${lines[14]}</p>
+                    <h3>Tomorrow</h3>
+                    <p><strong>Date:</strong> ${lines[59]}</p>
+                    <p><strong>Max Temp:</strong> ${lines[60]}</p>
+                    <p><strong>Min Temp:</strong> ${lines[61]}</p>
+                    <p><strong>Condition:</strong> ${lines[62]}</p>
                   </div>
 
                   <div class="forecast">
-                    <h3>Forecast for Day After Tomorrow</h3>
-                    <p><strong>Max Temp:</strong> ${lines[16]}</p>
-                    <p><strong>Min Temp:</strong> ${lines[17]}</p>
-                    <p><strong>Condition:</strong> ${lines[18]}</p>
+                    <h3>Day After Tomorrow</h3>
+                    <p><strong>Date:</strong> ${lines[63]}</p>
+                    <p><strong>Max Temp:</strong> ${lines[64]}</p>
+                    <p><strong>Min Temp:</strong> ${lines[65]}</p>
+                    <p><strong>Condition:</strong> ${lines[66]}</p>
                   </div>
                 </div>
               `;
@@ -170,7 +265,7 @@ document.addEventListener('DOMContentLoaded', function() {
           });
       },
       (error) => {
-        container.innerHTML = `<div class="error"><p>Geolocation permission denied or unavailable. Please allow location access or enter location manually.</p></div>`;
+        container.innerHTML = `<div class="error"><p>Geolocation permission denied or unavailable.</p></div>`;
         console.error('Geolocation error:', error);
       }
     );
@@ -179,5 +274,4 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 </script>
-
 {% endblock %}

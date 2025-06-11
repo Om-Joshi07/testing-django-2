@@ -1,5 +1,3 @@
-
-
 {% load static %}
 <header class="navbar-wrapper">
   <nav class="navbar">
@@ -23,16 +21,22 @@
         <li><a href="{% url 'bot' %}" class="nav-link {% if request.resolver_match.url_name == 'bot' %}active{% endif %}">Chatbot</a></li>
         <li><a href="{% url 'soil_report' %}" class="nav-link {% if request.resolver_match.url_name == 'soil_report' %}active{% endif %}">Crop Advisory</a></li>
         <li><a href="{% url 'weather_current' %}" class="nav-link {% if request.resolver_match.url_name == 'weather_current' %}active{% endif %}">Weather Forecast</a></li>
+        <li><a href="{% url 'aboutus' %}" class="nav-link {% if request.resolver_match.url_name == 'aboutus' %}active{% endif %}">About Us</a></li>
       </ul>
       {% endif %}
 
       <div class="auth-buttons">
         {% if user.is_authenticated %}
+        
         <form method="POST" action="{% url 'logout' %}" style="display: inline;">
           {% csrf_token %}
           <button type="submit" class="btn btn-login">Log out</button>
         </form>
+        <a href="{% url 'update_profile' %}" class="btn btn-profile" title="Profile">
+          <span class="profile-icon">👤</span>
+        </a>
         {% else %}
+        <a href="{% url 'aboutus' %}" class="btn btn-register"> About Us</a>
         <a href="{% url 'signin' %}" class="btn btn-login">Log In</a>
         <a href="{% url 'register' %}" class="btn btn-register">Register</a>  
         {% endif%}
@@ -40,3 +44,49 @@
     </div>
   </nav>
 </header>
+
+<style>
+.auth-buttons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-profile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: transparent;
+    border: 2px solid #3498db;
+    color: #3498db;
+    transition: all 0.3s ease;
+    padding: 0;
+    text-decoration: none;
+}
+
+.btn-profile:hover {
+    background-color: #3498db;
+    color: white;
+    transform: scale(1.05);
+}
+
+.profile-icon {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+/* Ensure proper spacing between profile and logout buttons */
+.auth-buttons form {
+    margin-left: 5px;
+}
+
+/* Make sure the buttons align properly on mobile */
+@media (max-width: 768px) {
+    .auth-buttons {
+        margin-top: 10px;
+    }
+}
+</style>

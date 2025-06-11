@@ -5,17 +5,17 @@
     color: #fff;
     padding: 3rem 0 0;
     flex-shrink: 0;
-    width: 100%; /* Changed from 100vw to 100% */
+    width: 100%; 
     margin: 0;
     position: relative;
 }
 
 .footer-container {
     max-width: 1200px;
-    width: 100%; /* Changed from 100vw to 100% */
+    width: 100%; 
     margin: 0 auto;
     padding: 0 2rem;
-    box-sizing: border-box; /* Ensures padding is included in width */
+    box-sizing: border-box; 
 }
 
 .footer-top {
@@ -59,7 +59,7 @@
 }
 
 .footer-title::after {
-    content: '';
+    content: '';    
     position: absolute;
     left: 0;
     bottom: 0;
@@ -140,6 +140,11 @@
     background: rgba(255,255,255,0.1);
     color: #fff;
     transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.social-links a i {
+    text-decoration: none;
 }
 
 .social-links a:hover {

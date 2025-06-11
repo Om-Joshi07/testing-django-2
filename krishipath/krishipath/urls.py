@@ -43,4 +43,8 @@ urlpatterns = [
     path('weather/', include('weather.urls')),
     path('logout/', views.logout_user, name='logout'),
     path('community/', include('community.urls')),
+    path('aboutus/', views.aboutus, name='aboutus'),
+
+
+
 ]

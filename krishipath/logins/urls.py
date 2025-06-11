@@ -17,7 +17,7 @@ from django.urls import reverse_lazy
 
 
 urlpatterns = [
-    # path('home/', views.home, name= 'home'),
+    path('home/', views.home, name= 'home'),
     path('signin/', views.user_login, name='signin'),
     path('register/', views.user_register, name='register'),
     path('logout/', views.user_logout, name='logout'),

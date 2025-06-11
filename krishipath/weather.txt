@@ -1,0 +1,67 @@
+Kathmandu
+27.717
+85.317
+02:44
+2082-02-29
+2025-06-12
+23.4 °C
+25.1 °C
+100%
+Patchy light rain with thunder
+3.6 km/h
+Time: 00:00
+Condition: Partly Cloudy
+Temperature: 23.5 °C
+Feels Like: 25.2 °C
+Wind: 2.5 km/h
+Humidity: 59 %
+Time: 03:00
+Condition: Partly Cloudy
+Temperature: 23.1 °C
+Feels Like: 25.0 °C
+Wind: 4.3 km/h
+Humidity: 61 %
+Time: 06:00
+Condition: Patchy rain nearby
+Temperature: 24.4 °C
+Feels Like: 25.8 °C
+Wind: 2.2 km/h
+Humidity: 63 %
+Time: 09:00
+Condition: Patchy rain nearby
+Temperature: 25.9 °C
+Feels Like: 27.1 °C
+Wind: 5.8 km/h
+Humidity: 59 %
+Time: 12:00
+Condition: Patchy rain nearby
+Temperature: 29.0 °C
+Feels Like: 30.1 °C
+Wind: 6.5 km/h
+Humidity: 50 %
+Time: 15:00
+Condition: Patchy light drizzle
+Temperature: 27.6 °C
+Feels Like: 28.9 °C
+Wind: 8.6 km/h
+Humidity: 57 %
+Time: 18:00
+Condition: Patchy rain nearby
+Temperature: 24.0 °C
+Feels Like: 25.7 °C
+Wind: 3.2 km/h
+Humidity: 71 %
+Time: 21:00
+Condition: Patchy rain nearby
+Temperature: 21.3 °C
+Feels Like: 21.3 °C
+Wind: 1.8 km/h
+Humidity: 76 %
+2025-06-13
+25.4 °C
+20.5 °C
+Moderate rain
+2025-06-14
+26.0 °C
+20.0 °C
+Moderate rain
